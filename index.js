@@ -15,18 +15,7 @@ const storage = multer.diskStorage({
     },
   });
   
-const upload = multer({ storage: storage });
-
-app.get("/api/movies", (req, res) => {
-  res.send([movies]);
-});
-
-// listen for incoming requests
-app.listen(3000, () => {
-  console.log("Server is running");
-});
-
-[
+const movies = [
     {
         "_id": 1,
         "title": "Dune: Part Two",
@@ -91,4 +80,16 @@ app.listen(3000, () => {
         "rating": 8.3,
         "img_name": "images/jaws.jpg"
     }
-]
+];
+
+const upload = multer({ storage: storage });
+
+app.get("/api/movies", (req, res) => {
+  res.send(movies);
+});
+
+// Render gives us the port in process.env.PORT; use 3000 locally
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
