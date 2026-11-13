@@ -48,6 +48,7 @@ main a {
     color: var(--color-bg);
     font-weight: bold;
     text-decoration: none;
+    margin-bottom: 15px;
 }
 
 @media (max-width: 600px) {

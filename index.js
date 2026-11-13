@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const multer = require("multer");
+const Joi = require("joi");
 const app = express();
 app.use(express.static("public"));
 app.use(express.json());
@@ -231,6 +232,48 @@ const upload = multer({ storage: storage });
 app.get("/api/movies", (req, res) => {
   res.send(movies);
 });
+
+// add a new movie from the form on the browse page
+app.post("/api/movies", upload.single("img"), (req, res) => {
+  const result = validateMovie(req.body);
+
+  if (result.error) {
+    res.status(400).send(result.error.details[0].message);
+    return;
+  }
+
+  if (!req.file) {
+    res.status(400).send("Please upload a poster image");
+    return;
+  }
+
+  const movie = {
+    _id: movies.length + 1,
+    title: req.body.title,
+    year: parseInt(req.body.year),
+    genre: req.body.genre,
+    rating: parseFloat(req.body.rating),
+    img_name: "images/" + req.file.filename,
+    description: req.body.description,
+  };
+
+  movies.push(movie);
+  res.status(200).send(movie);
+});
+
+const validateMovie = (movie) => {
+  const schema = Joi.object({
+    title: Joi.string().min(1).max(50).required(),
+    year: Joi.number().integer().min(1900).max(new Date().getFullYear()).required(),
+    genre: Joi.string()
+      .valid("Action", "Comedy", "Drama", "Sci-Fi", "Horror", "Thriller", "Romance", "Animation")
+      .required(),
+    rating: Joi.number().min(0).max(10).required(),
+    description: Joi.string().max(500).allow(""),
+  });
+
+  return schema.validate(movie);
+};
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
